@@ -24,8 +24,9 @@ public class Overlay
     
     private TimeSpan TimeSpan = TimeSpan.FromSeconds(1);
     
-    public Overlay(Plugin plugin, IFontHandle font) : base("Eat Food###With a constant ID")
+    public Overlay(Plugin plugin, Configuration configuration, IFontHandle font) : base("FoodReminder###Overlay")
     {
+        Configuration = configuration;
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
 
@@ -40,13 +41,20 @@ public class Overlay
     {
         
     }
-    
+
     public override void PreDraw()
     {
         // Toggle();
         // Flags must be added or removed before Draw() is being called, or they won't apply
-        // Flags &= ~ImGuiWindowFlags.NoMove;
-        Flags |= ImGuiWindowFlags.NoMove;
+        // ;
+        if (Configuration.IsOverlayMovable)
+        {
+            Flags &= ~ImGuiWindowFlags.NoMove;
+        }
+        else
+        {
+            Flags |= ImGuiWindowFlags.NoMove;
+        }
         Flags |= ImGuiWindowFlags.NoTitleBar;
         Flags |= ImGuiWindowFlags.NoBackground;
     }
@@ -56,7 +64,7 @@ public class Overlay
         var eatFood = "EAT FOOD";
         var currentTime = DateTime.Now;
 
-        if (currentTime - lastVisibleTime > TimeSpan)
+        if (Configuration.IsFlashingEffectEnabled && currentTime - lastVisibleTime > TimeSpan)
         {
             visible = !visible;
             lastVisibleTime = currentTime;
@@ -69,7 +77,7 @@ public class Overlay
         imDrawListPtr.AddRectFilled(topLeft, bottomRight, ImGui.GetColorU32(new Vector4(0,0,0, 0.5f)));
         imDrawListPtr.AddText(
             topLeft,
-            visible ? ImGui.GetColorU32(new Vector4(0, 255, 0, 1f)) : ImGui.GetColorU32(new Vector4(255, 0, 0, 1f)),
+            visible ? ImGui.GetColorU32(Configuration.PrimaryTextColor) : ImGui.GetColorU32(Configuration.SecondaryTextColor),
             eatFood);
 
         Font.Pop();

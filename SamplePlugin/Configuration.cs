@@ -1,6 +1,7 @@
 ﻿using Dalamud.Configuration;
 using Dalamud.Plugin;
 using System;
+using System.Numerics;
 
 namespace SamplePlugin;
 
@@ -9,8 +10,20 @@ public class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 0;
 
-    public bool IsConfigWindowMovable { get; set; } = true;
-    public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
+    public bool IsEnabled { get; set; } = true;
+    
+    public bool IsOverlayMovable { get; set; } = true;
+    
+    public bool IsFlashingEffectEnabled { get; set; } = true;
+    
+    public Vector4 PrimaryTextColor { get; set; } = new(0, 255, 0, 1f);
+    
+    public Vector4 SecondaryTextColor { get; set; } = new(255, 0, 0, 1f);
+        
+    public Vector4 BackgroundColor { get; set; } = new(0,0,0, 0.5f);
+        
+    public bool HideInCombat { get; set; } = true;
+
 
     // the below exist just to make saving less cumbersome
     public void Save()

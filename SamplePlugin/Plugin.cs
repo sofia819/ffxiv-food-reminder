@@ -40,7 +40,7 @@ public sealed class Plugin : IDalamudPlugin
         var newGameFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 46));
         
         ConfigWindow = new ConfigWindow(this);
-        Overlay=new Overlay(this, newGameFontHandle);
+        Overlay=new Overlay(this, Configuration, newGameFontHandle);
         Framework = framework;
         ChatGui = chatGui;
         DataManager = dataManager;
@@ -60,26 +60,38 @@ public sealed class Plugin : IDalamudPlugin
         // to toggle the display status of the configuration ui
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
 
-        Framework.Update += checkFood;
+       
+        Framework.Update += CheckFood;
+        
     }
 
-    private void checkFood(IFramework framework)
+    private void CheckFood(IFramework framework)
     {
+        // Check if enabled
+        if (!Configuration.IsEnabled)
+        {
+            ToggleOverlayOff();
+            return;
+        }
+        
         // Make sure there is a player
         PlayerCharacter = ClientState.LocalPlayer;
-        if (PlayerCharacter == null) return;
+        if (PlayerCharacter == null)
+        {
+            ToggleOverlayOff();
+            return;
+        }
         
         // TODO: check content type = EX, savage, ulti and level synced
         
-        // Do not show in combat
-        if ((PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
+        // Whether to show in combat
+        if (Configuration.HideInCombat && (PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
         {
-            ChatGui.Print("In combat, skip");
+            ToggleOverlayOff();
             return;
-            
         }
         
-        // Check if well fed
+        // Check if well-fed
         var playerCharacterStatusList = PlayerCharacter.StatusList;
         bool hasFood = false;
         foreach (var status in playerCharacterStatusList)
@@ -91,6 +103,14 @@ public sealed class Plugin : IDalamudPlugin
             
         }
         if ((!hasFood && !Overlay.IsOpen) || (hasFood && Overlay.IsOpen))
+        {
+            Overlay.Toggle();
+        }
+    }
+
+    private void ToggleOverlayOff()
+    {
+        if (Overlay.IsOpen)
         {
             Overlay.Toggle();
         }
