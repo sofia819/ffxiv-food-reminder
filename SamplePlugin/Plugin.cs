@@ -1,7 +1,10 @@
-﻿using Dalamud.Game.Command;
+﻿using System;
+using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Interface.GameFonts;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
 using SamplePlugin.Windows;
@@ -11,43 +14,86 @@ namespace SamplePlugin;
 public sealed class Plugin : IDalamudPlugin
 {
     [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
-    [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
 
-    private const string CommandName = "/pmycommand";
+    private const string CommandName = "/food";
 
     public Configuration Configuration { get; init; }
 
     public readonly WindowSystem WindowSystem = new("SamplePlugin");
     private ConfigWindow ConfigWindow { get; init; }
-    private MainWindow MainWindow { get; init; }
+    private Overlay Overlay { get; init; }
 
-    public Plugin()
+    private IFramework Framework { get; }
+    public IChatGui ChatGui { get;  }
+    
+    public IDataManager DataManager { get;  }
+    
+    public IClientState ClientState { get;  }
+
+    public IPlayerCharacter PlayerCharacter { get; set; }
+    
+    public Plugin(IFramework framework, IChatGui chatGui,  IDataManager dataManager, IClientState clientState, IDalamudPluginInterface pluginInterface)
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-
-        // you might normally want to embed resources and load them from the manifest stream
-        var goatImagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-
+        
+        var newGameFontHandle = PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 46));
+        
         ConfigWindow = new ConfigWindow(this);
-        MainWindow = new MainWindow(this, goatImagePath);
+        Overlay=new Overlay(this, newGameFontHandle);
+        Framework = framework;
+        ChatGui = chatGui;
+        DataManager = dataManager;
+        ClientState = clientState; 
 
         WindowSystem.AddWindow(ConfigWindow);
-        WindowSystem.AddWindow(MainWindow);
+        WindowSystem.AddWindow(Overlay);
 
         CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
-            HelpMessage = "A useful message to display in /xlhelp"
+            HelpMessage = "Opens Food Reminder config"
         });
-
+        
         PluginInterface.UiBuilder.Draw += DrawUI;
 
         // This adds a button to the plugin installer entry of this plugin which allows
         // to toggle the display status of the configuration ui
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
 
-        // Adds another button that is doing the same but for the main ui of the plugin
-        PluginInterface.UiBuilder.OpenMainUi += ToggleMainUI;
+        Framework.Update += checkFood;
+    }
+
+    private void checkFood(IFramework framework)
+    {
+        // Make sure there is a player
+        PlayerCharacter = ClientState.LocalPlayer;
+        if (PlayerCharacter == null) return;
+        
+        // TODO: check content type = EX, savage, ulti and level synced
+        
+        // Do not show in combat
+        if ((PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
+        {
+            ChatGui.Print("In combat, skip");
+            return;
+            
+        }
+        
+        // Check if well fed
+        var playerCharacterStatusList = PlayerCharacter.StatusList;
+        bool hasFood = false;
+        foreach (var status in playerCharacterStatusList)
+        {
+            if (status is { StatusId: 48, RemainingTime: > 1780 })
+            {
+                hasFood = true;
+            }
+            
+        }
+        if ((!hasFood && !Overlay.IsOpen) || (hasFood && Overlay.IsOpen))
+        {
+            Overlay.Toggle();
+        }
     }
 
     public void Dispose()
@@ -55,19 +101,18 @@ public sealed class Plugin : IDalamudPlugin
         WindowSystem.RemoveAllWindows();
 
         ConfigWindow.Dispose();
-        MainWindow.Dispose();
+        Overlay.Dispose();
 
         CommandManager.RemoveHandler(CommandName);
     }
 
     private void OnCommand(string command, string args)
     {
-        // in response to the slash command, just toggle the display status of our main ui
-        ToggleMainUI();
+        // in response to the slash command, just toggle the display status of our config UI
+        ToggleConfigUI();
     }
 
     private void DrawUI() => WindowSystem.Draw();
 
     public void ToggleConfigUI() => ConfigWindow.Toggle();
-    public void ToggleMainUI() => MainWindow.Toggle();
 }
