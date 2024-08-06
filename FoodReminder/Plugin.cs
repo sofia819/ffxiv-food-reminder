@@ -104,27 +104,47 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
+        var currentContent =
+            DataManager.GetExcelSheet<ContentFinderCondition>()!.GetRow(
+                GameMain.Instance()->CurrentContentFinderConditionId);
+
+        // Only show if level synced
+        if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
+        {
+            ToggleOverlayOff();
+            return;
+        }
+
         // Check duty if specific filter applied
         if (!Configuration.EnableAll)
         {
-            var currentContent =
-                DataManager.GetExcelSheet<ContentFinderCondition>()!.GetRow(
-                    GameMain.Instance()->CurrentContentFinderConditionId);
-            // Only show if level synced
-            if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
+            // Check Content Type By Name
+            var contentName = currentContent.Name.RawString;
+            var isMatch = Regex.IsMatch(contentName, "(Minstrel's Ballad|\\(Extreme\\)|\\(Savage\\)|\\(Ultimate\\))");
+            if (!isMatch)
             {
                 ToggleOverlayOff();
                 return;
             }
 
-            // Check Content Type By Name
-            var contentName = currentContent.Name.RawString;
-            var isMatch = Regex.IsMatch(contentName, "(Minstrel's Ballad|\\(Extreme\\)|\\(Savage\\)|\\(Ultimate\\))");
-            if (!isMatch) return;
             if ((contentName.Contains("(Extreme)") || contentName.Contains("The Minstrel's Ballad")) &&
-                !Configuration.ShowInSavage) return;
-            if (contentName.Contains("(Savage)") && !Configuration.ShowInSavage) return;
-            if (contentName.Contains("(Ultimate)") && !Configuration.ShowInSavage) return;
+                !Configuration.ShowInExtreme)
+            {
+                ToggleOverlayOff();
+                return;
+            }
+
+            if (contentName.Contains("(Savage)") && !Configuration.ShowInSavage)
+            {
+                ToggleOverlayOff();
+                return;
+            }
+
+            if (contentName.Contains("(Ultimate)") && !Configuration.ShowInUltimate)
+            {
+                ToggleOverlayOff();
+                return;
+            }
         }
 
         // Make sure duty is ready
