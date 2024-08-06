@@ -102,24 +102,30 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        var currentContent =
-            DataManager.GetExcelSheet<ContentFinderCondition>()!.GetRow(
-                GameMain.Instance()->CurrentContentFinderConditionId);
-        // Only show if level synced
-        if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
+        if (!Configuration.EnableAll)
         {
-            ToggleOverlayOff();
-            return;
-        }
+            var currentContent =
+                DataManager.GetExcelSheet<ContentFinderCondition>()!.GetRow(
+                    GameMain.Instance()->CurrentContentFinderConditionId);
+            // Only show if level synced
+            if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
+            {
+                ToggleOverlayOff();
+                return;
+            }
 
-        // Check Content Type By Name
-        var contentName = currentContent.Name.RawString;
-        var isMatch = Regex.IsMatch(contentName, "(Minstrel's Ballad|\\(Extreme\\)|\\(Savage\\)|\\(Ultimate\\))");
-        if (!isMatch) return;
-        if ((contentName.Contains("(Extreme)") || contentName.Contains("The Minstrel's Ballad")) &&
-            !Configuration.ShowInSavage) return;
-        if (contentName.Contains("(Savage)") && !Configuration.ShowInSavage) return;
-        if (contentName.Contains("(Ultimate)") && !Configuration.ShowInSavage) return;
+            // Check Content Type By Name
+            var contentName = currentContent.Name.RawString;
+            var isMatch = Regex.IsMatch(contentName, "(Minstrel's Ballad|\\(Extreme\\)|\\(Savage\\)|\\(Ultimate\\))");
+            if (!isMatch) return;
+            if ((contentName.Contains("(Extreme)") || contentName.Contains("The Minstrel's Ballad")) &&
+                !Configuration.ShowInSavage) return;
+            if (contentName.Contains("(Savage)") && !Configuration.ShowInSavage) return;
+            if (contentName.Contains("(Ultimate)") && !Configuration.ShowInSavage) return;
+
+            // Make sure duty is ready
+            if (!DutyState.IsDutyStarted) return;
+        }
 
         // Whether to show in combat
         if (Configuration.HideInCombat && (PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
@@ -127,9 +133,6 @@ public sealed class Plugin : IDalamudPlugin
             ToggleOverlayOff();
             return;
         }
-
-        // Make sure duty is ready
-        if (!DutyState.IsDutyStarted) return;
 
         // Check if well-fed
         var playerCharacterStatusList = PlayerCharacter.StatusList;
