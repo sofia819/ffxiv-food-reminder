@@ -1,13 +1,20 @@
 ﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.Gui.PartyFinder.Types;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using Lumina.Excel.GeneratedSheets2;
 using SamplePlugin.Windows;
+using ContentFinderCondition = Lumina.Excel.GeneratedSheets.ContentFinderCondition;
 
 namespace SamplePlugin;
 
@@ -33,7 +40,9 @@ public sealed class Plugin : IDalamudPlugin
 
     public IPlayerCharacter PlayerCharacter { get; set; }
     
-    public Plugin(IFramework framework, IChatGui chatGui,  IDataManager dataManager, IClientState clientState, IDalamudPluginInterface pluginInterface)
+    public IDutyState DutyState { get; init; }
+    
+    public Plugin(IFramework framework, IChatGui chatGui,  IDataManager dataManager, IClientState clientState, IDutyState dutyState)
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         
@@ -44,7 +53,8 @@ public sealed class Plugin : IDalamudPlugin
         Framework = framework;
         ChatGui = chatGui;
         DataManager = dataManager;
-        ClientState = clientState; 
+        ClientState = clientState;
+        DutyState = dutyState;
 
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(Overlay);
@@ -60,12 +70,10 @@ public sealed class Plugin : IDalamudPlugin
         // to toggle the display status of the configuration ui
         PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
 
-       
         Framework.Update += CheckFood;
-        
     }
 
-    private void CheckFood(IFramework framework)
+    private unsafe void CheckFood(IFramework framework)
     {
         // Check if enabled
         if (!Configuration.IsEnabled)
@@ -82,7 +90,20 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
         
-        // TODO: check content type = EX, savage, ulti and level synced
+        var currentContent = DataManager.GetExcelSheet<ContentFinderCondition>()!.GetRow(GameMain.Instance()->CurrentContentFinderConditionId);
+        // Only show if level synced
+        if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)  {
+            ToggleOverlayOff();
+            return;
+        }
+        
+        // Check Content Type By Name
+        var contentName = currentContent.Name.RawString;
+        var isMatch = Regex.IsMatch(contentName, "(Minstrel's Ballad|\\(Extreme\\)|\\(Savage\\)|\\(Ultimate\\))");
+        if (!isMatch) return;
+        if ((contentName.Contains("(Extreme)") || contentName.Contains("The Minstrel's Ballad")) && !Configuration.ShowInSavage) return;
+        if (contentName.Contains("(Savage)") && !Configuration.ShowInSavage) return;
+        if (contentName.Contains("(Ultimate)") && !Configuration.ShowInSavage) return;
         
         // Whether to show in combat
         if (Configuration.HideInCombat && (PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
@@ -91,12 +112,15 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
         
+        // Make sure duty is ready
+        if (!DutyState.IsDutyStarted) return;
+        
         // Check if well-fed
         var playerCharacterStatusList = PlayerCharacter.StatusList;
         bool hasFood = false;
         foreach (var status in playerCharacterStatusList)
         {
-            if (status is { StatusId: 48, RemainingTime: > 1780 })
+            if (status.StatusId == 48 && status.RemainingTime > Configuration.RemainingTimeInSeconds)
             {
                 hasFood = true;
             }
