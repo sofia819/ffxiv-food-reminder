@@ -12,7 +12,7 @@ Note: this is filled with bad coding practices and bugs.
 
 ## Settings
 
-![settings](settings.png)
+![main settings](main-settings.png)
 
 ### Main Options
 - Enable 
