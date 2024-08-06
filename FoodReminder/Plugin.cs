@@ -120,7 +120,7 @@ public sealed class Plugin : IDalamudPlugin
                 return;
             }
 
-            if ((contentName.Contains("(Extreme)") || contentName.Contains("The Minstrel's Ballad")) &&
+            if ((contentName.Contains("(Extreme)") || contentName.Contains("Minstrel's Ballad")) &&
                 !Configuration.ShowInExtreme)
             {
                 ToggleOverlayOff();
@@ -139,7 +139,7 @@ public sealed class Plugin : IDalamudPlugin
                 return;
             }
         }
-        
+
         // Only show if level synced
         if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
         {
