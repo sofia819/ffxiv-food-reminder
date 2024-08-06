@@ -1,6 +1,6 @@
 # Food Reminder
 
-[Video Demo]()
+[Video Demo](https://github.com/user-attachments/assets/1a96e950-5107-4af8-98ce-80ffbb3bb7fe)
 
 Reminds you to eat food in duties.
 
