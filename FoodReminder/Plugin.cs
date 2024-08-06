@@ -104,6 +104,7 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
+        // Check duty if specific filter applied
         if (!Configuration.EnableAll)
         {
             var currentContent =
@@ -124,10 +125,10 @@ public sealed class Plugin : IDalamudPlugin
                 !Configuration.ShowInSavage) return;
             if (contentName.Contains("(Savage)") && !Configuration.ShowInSavage) return;
             if (contentName.Contains("(Ultimate)") && !Configuration.ShowInSavage) return;
-
-            // Make sure duty is ready
-            if (!DutyState.IsDutyStarted) return;
         }
+
+        // Make sure duty is ready
+        if (!DutyState.IsDutyStarted) return;
 
         // Whether to show in combat
         if (Configuration.HideInCombat && (PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
