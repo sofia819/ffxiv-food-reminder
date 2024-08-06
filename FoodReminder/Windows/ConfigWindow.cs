@@ -7,8 +7,6 @@ namespace FoodReminder.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    private readonly Configuration Configuration;
-
     private readonly MainTab MainTab;
 
     private readonly ContentTab ContentTab;

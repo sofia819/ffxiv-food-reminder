@@ -38,6 +38,13 @@ public class StyleTab(Configuration configuration)
                 Configuration.Save();
             }
 
+            var overlayScale = Configuration.OverlayScale;
+            if (ImGui.SliderFloat("Scale", ref overlayScale, 0.3f, 2.0f))
+            {
+                Configuration.OverlayScale = overlayScale;
+                Configuration.Save();
+            }
+
             ImGui.EndTabItem();
         }
     }

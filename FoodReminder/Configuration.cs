@@ -19,6 +19,8 @@ public class Configuration : IPluginConfiguration
 
     public Vector4 BackgroundColor { get; set; } = new(0, 0, 0, 0.5f);
 
+    public float OverlayScale { get; set; } = 1.0f;
+
     public bool HideInCombat { get; set; } = true;
 
     public int RemainingTimeInSeconds { get; set; } = 600;

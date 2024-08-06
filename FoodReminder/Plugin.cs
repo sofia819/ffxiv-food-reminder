@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.IO;
+using System.Text.RegularExpressions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Command;
@@ -15,24 +16,26 @@ namespace FoodReminder;
 
 public sealed class Plugin : IDalamudPlugin
 {
+    [PluginService]
+    internal static ITextureProvider TextureProvider { get; private set; } = null!;
+
     private const string CommandName = "/food";
 
     public readonly WindowSystem WindowSystem = new("FoodReminder");
 
     public Plugin(
-        IFramework framework, IChatGui chatGui, IDataManager dataManager, IClientState clientState,
+        IFramework framework, IDataManager dataManager, IClientState clientState,
         IDutyState dutyState)
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         var newGameFontHandle =
             PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 46));
+        var iconPath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "icon.png");
 
         ConfigWindow = new ConfigWindow(this);
-        Overlay = new Overlay(this, Configuration, newGameFontHandle);
+        Overlay = new Overlay(this, Configuration, newGameFontHandle, iconPath);
         Framework = framework;
-        ChatGui = chatGui;
-
         DataManager = dataManager;
         ClientState = clientState;
         DutyState = dutyState;
@@ -65,13 +68,12 @@ public sealed class Plugin : IDalamudPlugin
     private Overlay Overlay { get; init; }
 
     private IFramework Framework { get; }
-    public IChatGui ChatGui { get; }
 
     public IDataManager DataManager { get; }
 
     public IClientState ClientState { get; }
 
-    public IPlayerCharacter PlayerCharacter { get; set; }
+    public IPlayerCharacter? PlayerCharacter { get; set; }
 
     public IDutyState DutyState { get; init; }
 
