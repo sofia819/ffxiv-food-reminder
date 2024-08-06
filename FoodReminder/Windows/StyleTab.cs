@@ -46,7 +46,7 @@ public class StyleTab(Configuration configuration)
             }
 
             var overlayScale = Configuration.OverlayScale;
-            if (ImGui.DragFloat("Scale", ref overlayScale, 0.01f, 0.2f, 2.0f))
+            if (ImGui.DragFloat("Scale", ref overlayScale, 0.01f, 0.2f, 3.0f))
             {
                 Configuration.OverlayScale = overlayScale;
                 Configuration.Save();

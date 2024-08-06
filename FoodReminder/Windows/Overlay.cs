@@ -11,6 +11,10 @@ namespace FoodReminder.Windows;
 public class Overlay
     : Window, IDisposable
 {
+    private const int ImageWidth = 128;
+
+    private const int ImageHeight = 128;
+
     private readonly Configuration configuration;
 
     private readonly IFontHandle font;
@@ -30,7 +34,7 @@ public class Overlay
         Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize;
 
-        Size = new Vector2(680, 280);
+        Size = new Vector2(1040, 400);
         SizeCondition = ImGuiCond.Always;
 
         this.configuration = plugin.Configuration;
@@ -52,6 +56,7 @@ public class Overlay
             Flags &= ~ImGuiWindowFlags.NoInputs;
             Flags &= ~ImGuiWindowFlags.NoMove;
         }
+
         Flags |= ImGuiWindowFlags.NoTitleBar;
         Flags |= ImGuiWindowFlags.NoBackground;
     }
@@ -71,19 +76,19 @@ public class Overlay
         var imDrawListPtr = ImGui.GetWindowDrawList();
 
         var image = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
-
+        
         if (configuration.ShowIcon && image != null)
         {
+            // Leave some padding
+            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMin().X + 14 * configuration.OverlayScale);
+            ImGui.SetCursorPosY(ImGui.GetWindowContentRegionMin().Y + 14 * configuration.OverlayScale);
             ImGui.Image(image.ImGuiHandle,
-                        new Vector2(image.Width * configuration.OverlayScale,
-                                    image.Height * configuration.OverlayScale));
+                        new Vector2((ImageWidth * configuration.OverlayScale) - 14 * configuration.OverlayScale,
+                                    (ImageHeight * configuration.OverlayScale)  - 14 * configuration.OverlayScale));
         }
 
-        var imageEdge = image != null
-                            ? new Vector2(topLeft.X + (image.Width * configuration.OverlayScale),
-                                          topLeft.Y + (image.Height * configuration.OverlayScale))
-                            : new Vector2(topLeft.X + (186 * configuration.OverlayScale),
-                                          topLeft.Y + (186 * configuration.OverlayScale));
+        var imageEdge = new Vector2(topLeft.X + (ImageWidth * configuration.OverlayScale),
+                                    topLeft.Y + (ImageHeight * configuration.OverlayScale));
 
         imDrawListPtr.AddRectFilled(
             new Vector2(imageEdge.X + (6 * configuration.OverlayScale), topLeft.Y + (24 * configuration.OverlayScale)),
