@@ -64,8 +64,7 @@ public class Overlay
         var topLeft = ImGui.GetWindowContentRegionMin() + ImGui.GetWindowPos();
         var imDrawListPtr = ImGui.GetWindowDrawList();
 
-        IDalamudTextureWrap image = null;
-        image = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
+        var image = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
 
         if (configuration.ShowIcon && image != null)
         {
