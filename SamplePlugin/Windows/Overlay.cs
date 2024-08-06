@@ -74,9 +74,9 @@ public class Overlay
         var topLeft = ImGui.GetWindowContentRegionMin() + ImGui.GetWindowPos();
         var bottomRight = ImGui.GetWindowContentRegionMax() + ImGui.GetWindowPos();
         var imDrawListPtr = ImGui.GetWindowDrawList();
-        imDrawListPtr.AddRectFilled(topLeft, bottomRight, ImGui.GetColorU32(new Vector4(0,0,0, 0.5f)));
+        imDrawListPtr.AddRectFilled(topLeft, bottomRight, ImGui.GetColorU32(Configuration.BackgroundColor));
         imDrawListPtr.AddText(
-            topLeft,
+            new Vector2(topLeft.X + 4, topLeft.Y),
             visible ? ImGui.GetColorU32(Configuration.PrimaryTextColor) : ImGui.GetColorU32(Configuration.SecondaryTextColor),
             eatFood);
 
