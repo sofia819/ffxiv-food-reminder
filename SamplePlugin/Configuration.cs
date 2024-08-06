@@ -23,6 +23,16 @@ public class Configuration : IPluginConfiguration
     public Vector4 BackgroundColor { get; set; } = new(0,0,0, 0.5f);
         
     public bool HideInCombat { get; set; } = true;
+    
+    public int RemainingTimeInSeconds { get; set; } = 600;
+    
+    public bool ShowIfLevelSynced { get; set; } = true;
+    
+    public bool ShowInExtreme { get; set; } = true;
+    
+    public bool ShowInSavage { get; set; } = true;
+    
+    public bool ShowInUltimate { get; set; } = true;
 
 
     // the below exist just to make saving less cumbersome

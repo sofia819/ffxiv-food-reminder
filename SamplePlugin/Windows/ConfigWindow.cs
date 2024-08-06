@@ -14,10 +14,10 @@ public class ConfigWindow : Window, IDisposable
     // and the window ID will always be "###XYZ counter window" for ImGui
     public ConfigWindow(Plugin plugin) : base("FoodReminder###Config")
     {
-        Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
+        Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(200, 150);
+        Size = new Vector2(200, 300);
         SizeCondition = ImGuiCond.Always;
 
         Configuration = plugin.Configuration;
@@ -58,6 +58,51 @@ public class ConfigWindow : Window, IDisposable
         if (ImGui.Checkbox("HideInCombat", ref hideInCombat))
         {
             Configuration.HideInCombat = hideInCombat;
+            Configuration.Save();
+        }
+        
+        var remainingTimeInMinutes = Configuration.RemainingTimeInSeconds / 60;
+        if (ImGui.InputInt("Time", ref remainingTimeInMinutes, 1))
+        {
+            if (remainingTimeInMinutes > 60)
+            {
+                remainingTimeInMinutes = 0;
+            }
+            if (remainingTimeInMinutes < 0)
+            {
+                remainingTimeInMinutes = 60;
+            }
+            Configuration.RemainingTimeInSeconds = remainingTimeInMinutes * 60;
+            Configuration.Save();
+        }
+        
+        ImGui.Text("Content Type");
+        
+        var showIfLevelSynced = Configuration.ShowIfLevelSynced;
+        if (ImGui.Checkbox("Level Synced Only", ref showIfLevelSynced))
+        {
+            Configuration.ShowIfLevelSynced = showIfLevelSynced;
+            Configuration.Save();
+        }
+
+        var showInExtreme = Configuration.ShowInExtreme;
+        if (ImGui.Checkbox("Extreme", ref showInExtreme))
+        {
+            Configuration.ShowInExtreme = showInExtreme;
+            Configuration.Save();
+        }
+        
+        var showInSavage = Configuration.ShowInSavage;
+        if (ImGui.Checkbox("Savage", ref showInSavage))
+        {
+            Configuration.ShowInSavage = showInSavage;
+            Configuration.Save();
+        }
+        
+        var showInUltimate = Configuration.ShowInUltimate;
+        if (ImGui.Checkbox("Ultimate", ref showInUltimate))
+        {
+            Configuration.ShowInUltimate = showInUltimate;
             Configuration.Save();
         }
     }
