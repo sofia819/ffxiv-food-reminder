@@ -62,7 +62,7 @@ public class Overlay
         imDrawListPtr.AddRectFilled(topLeft, bottomRight, ImGui.GetColorU32(Configuration.BackgroundColor));
         imDrawListPtr.AddText(
             new Vector2(topLeft.X + 4, topLeft.Y),
-            visible
+            !Configuration.IsFlashingEffectEnabled || visible
                 ? ImGui.GetColorU32(Configuration.PrimaryTextColor)
                 : ImGui.GetColorU32(Configuration.SecondaryTextColor),
             eatFood);
