@@ -21,6 +21,8 @@ public class Configuration : IPluginConfiguration
 
     public float OverlayScale { get; set; } = 1.0f;
 
+    public bool ShowIcon { get; set; } = true;
+
     public bool HideInCombat { get; set; } = true;
 
     public int RemainingTimeInSeconds { get; set; } = 600;

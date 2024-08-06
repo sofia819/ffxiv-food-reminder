@@ -38,8 +38,15 @@ public class StyleTab(Configuration configuration)
                 Configuration.Save();
             }
 
+            var showIcon = Configuration.ShowIcon;
+            if (ImGui.Checkbox("ShowIcon", ref showIcon))
+            {
+                Configuration.ShowIcon = showIcon;
+                Configuration.Save();
+            }
+
             var overlayScale = Configuration.OverlayScale;
-            if (ImGui.SliderFloat("Scale", ref overlayScale, 0.3f, 2.0f))
+            if (ImGui.DragFloat("Scale", ref overlayScale, 0.01f, 0.2f, 2.0f))
             {
                 Configuration.OverlayScale = overlayScale;
                 Configuration.Save();

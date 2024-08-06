@@ -21,7 +21,7 @@ public class ConfigWindow : Window, IDisposable
         Flags = ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar |
                 ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(200, 200);
+        Size = new Vector2(200, 230);
         SizeCondition = ImGuiCond.Always;
 
         MainTab = new MainTab(plugin.Configuration);

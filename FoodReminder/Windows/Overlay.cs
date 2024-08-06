@@ -1,5 +1,6 @@
 using System;
 using Dalamud.Interface.ManagedFontAtlas;
+using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
@@ -62,21 +63,22 @@ public class Overlay
 
         var topLeft = ImGui.GetWindowContentRegionMin() + ImGui.GetWindowPos();
         var imDrawListPtr = ImGui.GetWindowDrawList();
-        var image = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
 
-        if (image != null)
+        IDalamudTextureWrap image = null;
+        image = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
+
+        if (configuration.ShowIcon && image != null)
         {
-            ImGuiHelpers.ScaledIndent(55f);
-            imDrawListPtr.AddImage(image.ImGuiHandle,
-                                   new Vector2(topLeft.X, topLeft.Y),
-                                   new Vector2(topLeft.X + image.Width * configuration.OverlayScale,
-                                               topLeft.Y + image.Height * configuration.OverlayScale));
-            ImGuiHelpers.ScaledIndent(-55f);
+            ImGui.Image(image.ImGuiHandle,
+                        new Vector2(image.Width * configuration.OverlayScale,
+                                    image.Height * configuration.OverlayScale));
         }
+
         var imageEdge = image != null
                             ? new Vector2(topLeft.X + (image.Width * configuration.OverlayScale),
                                           topLeft.Y + (image.Height * configuration.OverlayScale))
-                            : new Vector2(topLeft.X, topLeft.Y);
+                            : new Vector2(topLeft.X + (186 * configuration.OverlayScale),
+                                          topLeft.Y + (186 * configuration.OverlayScale));
 
         imDrawListPtr.AddRectFilled(
             new Vector2(imageEdge.X + (6 * configuration.OverlayScale), topLeft.Y + (24 * configuration.OverlayScale)),
