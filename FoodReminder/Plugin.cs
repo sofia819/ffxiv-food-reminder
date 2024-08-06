@@ -108,13 +108,6 @@ public sealed class Plugin : IDalamudPlugin
             DataManager.GetExcelSheet<ContentFinderCondition>()!.GetRow(
                 GameMain.Instance()->CurrentContentFinderConditionId);
 
-        // Only show if level synced
-        if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
-        {
-            ToggleOverlayOff();
-            return;
-        }
-
         // Check duty if specific filter applied
         if (!Configuration.EnableAll)
         {
@@ -127,7 +120,7 @@ public sealed class Plugin : IDalamudPlugin
                 return;
             }
 
-            if ((contentName.Contains("(Extreme)") || contentName.Contains("The Minstrel's Ballad")) &&
+            if ((contentName.Contains("(Extreme)") || contentName.Contains("Minstrel's Ballad")) &&
                 !Configuration.ShowInExtreme)
             {
                 ToggleOverlayOff();
@@ -145,6 +138,13 @@ public sealed class Plugin : IDalamudPlugin
                 ToggleOverlayOff();
                 return;
             }
+        }
+
+        // Only show if level synced
+        if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
+        {
+            ToggleOverlayOff();
+            return;
         }
 
         // Make sure duty is ready
