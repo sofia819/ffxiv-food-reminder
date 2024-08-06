@@ -8,7 +8,7 @@ Reminds you to eat food in duties.
 
 Note: this is filled with bad coding practices and bugs.
 
-[Custom Plugin Repository](https://gist.githubusercontent.com/sofia819/fb17fff59d39923fde123538dbf8b92b/raw/map-link.json)
+[Custom Plugin Repository](https://gist.githubusercontent.com/sofia819/fb17fff59d39923fde123538dbf8b92b/raw/sofia-plugins.json)
 
 ## Settings
 
