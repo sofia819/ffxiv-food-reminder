@@ -1,0 +1,11 @@
+{
+    "Author": "sofia819",
+    "Name": "FoodReminder",
+    "Punchline": "Reminds you to eat food",
+    "Description": "Shows a warning to eat food in duties if requirements are met",
+    "ApplicableVersion": "any",
+    "Tags": [
+        "food",
+        "reminder"
+    ]
+}
