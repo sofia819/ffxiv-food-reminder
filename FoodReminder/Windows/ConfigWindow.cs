@@ -3,11 +3,11 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace SamplePlugin.Windows;
+namespace FoodReminder.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    private Configuration Configuration;
+    private readonly Configuration Configuration;
 
     // We give this window a constant ID using ###
     // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -25,9 +25,7 @@ public class ConfigWindow : Window, IDisposable
 
     public void Dispose() { }
 
-    public override void PreDraw()
-    {
-    }
+    public override void PreDraw() { }
 
     public override void Draw()
     {
@@ -46,38 +44,32 @@ public class ConfigWindow : Window, IDisposable
             Configuration.IsOverlayMovable = overlayMovable;
             Configuration.Save();
         }
-        
+
         var shouldFlash = Configuration.IsFlashingEffectEnabled;
         if (ImGui.Checkbox("FlashingEffect", ref shouldFlash))
         {
             Configuration.IsFlashingEffectEnabled = shouldFlash;
             Configuration.Save();
         }
-        
+
         var hideInCombat = Configuration.HideInCombat;
         if (ImGui.Checkbox("HideInCombat", ref hideInCombat))
         {
             Configuration.HideInCombat = hideInCombat;
             Configuration.Save();
         }
-        
+
         var remainingTimeInMinutes = Configuration.RemainingTimeInSeconds / 60;
         if (ImGui.InputInt("Time", ref remainingTimeInMinutes, 1))
         {
-            if (remainingTimeInMinutes > 60)
-            {
-                remainingTimeInMinutes = 0;
-            }
-            if (remainingTimeInMinutes < 0)
-            {
-                remainingTimeInMinutes = 60;
-            }
+            if (remainingTimeInMinutes > 60) remainingTimeInMinutes = 0;
+            if (remainingTimeInMinutes < 0) remainingTimeInMinutes = 60;
             Configuration.RemainingTimeInSeconds = remainingTimeInMinutes * 60;
             Configuration.Save();
         }
-        
+
         ImGui.Text("Content Type");
-        
+
         var showIfLevelSynced = Configuration.ShowIfLevelSynced;
         if (ImGui.Checkbox("Level Synced Only", ref showIfLevelSynced))
         {
@@ -91,14 +83,14 @@ public class ConfigWindow : Window, IDisposable
             Configuration.ShowInExtreme = showInExtreme;
             Configuration.Save();
         }
-        
+
         var showInSavage = Configuration.ShowInSavage;
         if (ImGui.Checkbox("Savage", ref showInSavage))
         {
             Configuration.ShowInSavage = showInSavage;
             Configuration.Save();
         }
-        
+
         var showInUltimate = Configuration.ShowInUltimate;
         if (ImGui.Checkbox("Ultimate", ref showInUltimate))
         {
