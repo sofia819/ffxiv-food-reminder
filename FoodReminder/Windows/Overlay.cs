@@ -42,10 +42,16 @@ public class Overlay
 
     public override void PreDraw()
     {
-        if (configuration.IsOverlayMovable)
-            Flags &= ~ImGuiWindowFlags.NoMove;
-        else
+        if (configuration.IsOverlayLocked)
+        {
+            Flags |= ImGuiWindowFlags.NoInputs;
             Flags |= ImGuiWindowFlags.NoMove;
+        }
+        else
+        {
+            Flags &= ~ImGuiWindowFlags.NoInputs;
+            Flags &= ~ImGuiWindowFlags.NoMove;
+        }
         Flags |= ImGuiWindowFlags.NoTitleBar;
         Flags |= ImGuiWindowFlags.NoBackground;
     }

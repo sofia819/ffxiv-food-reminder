@@ -32,14 +32,14 @@ public class StyleTab(Configuration configuration)
             }
 
             var shouldFlash = Configuration.IsFlashingEffectEnabled;
-            if (ImGui.Checkbox("FlashingEffect", ref shouldFlash))
+            if (ImGui.Checkbox("Flashing Effect", ref shouldFlash))
             {
                 Configuration.IsFlashingEffectEnabled = shouldFlash;
                 Configuration.Save();
             }
 
             var showIcon = Configuration.ShowIcon;
-            if (ImGui.Checkbox("ShowIcon", ref showIcon))
+            if (ImGui.Checkbox("Show Icon", ref showIcon))
             {
                 Configuration.ShowIcon = showIcon;
                 Configuration.Save();

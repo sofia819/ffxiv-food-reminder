@@ -9,7 +9,7 @@ public class Configuration : IPluginConfiguration
 {
     public bool IsEnabled { get; set; } = true;
 
-    public bool IsOverlayMovable { get; set; } = true;
+    public bool IsOverlayLocked { get; set; } = true;
 
     public bool IsFlashingEffectEnabled { get; set; } = true;
 
