@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
+using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Command;
@@ -16,46 +17,16 @@ namespace FoodReminder;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    [PluginService]
-    internal static ITextureProvider TextureProvider { get; private set; } = null!;
-
-    private const string CommandName = "/food";
-
+    public Configuration Configuration { get; init; }
     public readonly WindowSystem WindowSystem = new("FoodReminder");
 
-    public Plugin(
-        IFramework framework, IDataManager dataManager, IClientState clientState,
-        IDutyState dutyState)
-    {
-        Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+    private const string CommandName = "/food";
+    private IPlayerCharacter? PlayerCharacter { get; set; }
+    private ConfigWindow ConfigWindow { get; init; }
+    private Overlay Overlay { get; init; }
 
-        var newGameFontHandle =
-            PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 46));
-        var iconPath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "icon.png");
-
-        ConfigWindow = new ConfigWindow(this);
-        Overlay = new Overlay(this, Configuration, newGameFontHandle, iconPath);
-        Framework = framework;
-        DataManager = dataManager;
-        ClientState = clientState;
-        DutyState = dutyState;
-
-        WindowSystem.AddWindow(ConfigWindow);
-        WindowSystem.AddWindow(Overlay);
-
-        CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand)
-        {
-            HelpMessage = "Opens Food Reminder config"
-        });
-
-        PluginInterface.UiBuilder.Draw += DrawUI;
-
-        // This adds a button to the plugin installer entry of this plugin which allows
-        // to toggle the display status of the configuration ui
-        PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
-
-        Framework.Update += CheckFood;
-    }
+    [PluginService]
+    internal static ITextureProvider TextureProvider { get; private set; } = null!;
 
     [PluginService]
     internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
@@ -63,28 +34,50 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService]
     internal static ICommandManager CommandManager { get; private set; } = null!;
 
-    public Configuration Configuration { get; init; }
-    private ConfigWindow ConfigWindow { get; init; }
-    private Overlay Overlay { get; init; }
+    [PluginService]
+    internal static IFramework Framework { get; private set; } = null!;
 
-    private IFramework Framework { get; }
+    [PluginService]
+    internal static IDataManager DataManager { get; private set; } = null!;
 
-    public IDataManager DataManager { get; }
+    [PluginService]
+    internal static IClientState ClientState { get; private set; } = null!;
 
-    public IClientState ClientState { get; }
+    [PluginService]
+    internal static IDutyState DutyState { get; private set; } = null!;
 
-    public IPlayerCharacter? PlayerCharacter { get; set; }
+    public Plugin()
+    {
+        Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        var newGameFontHandle =
+            PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 46));
+        var iconPath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "icon.png");
+        ConfigWindow = new ConfigWindow(this);
+        Overlay = new Overlay(this, Configuration, newGameFontHandle, iconPath);
+        WindowSystem.AddWindow(ConfigWindow);
+        WindowSystem.AddWindow(Overlay);
+        CommandManager.AddHandler(CommandName,
+                                  new CommandInfo(OnCommand) { HelpMessage = "Opens Food Reminder config" });
+        PluginInterface.UiBuilder.Draw += DrawUI;
 
-    public IDutyState DutyState { get; init; }
+        // This adds a button to the plugin installer entry of this plugin which allows
+        // to toggle the display status of the configuration ui
+        PluginInterface.UiBuilder.OpenConfigUi += ToggleConfigUI;
+        Framework.Update += CheckFood;
+    }
 
     public void Dispose()
     {
         WindowSystem.RemoveAllWindows();
-
         ConfigWindow.Dispose();
         Overlay.Dispose();
-
         CommandManager.RemoveHandler(CommandName);
+    }
+
+    private void OnCommand(string command, string args)
+    {
+        // in response to the slash command, just toggle the display status of our config UI
+        ToggleConfigUI();
     }
 
     private unsafe void CheckFood(IFramework framework)
@@ -105,8 +98,13 @@ public sealed class Plugin : IDalamudPlugin
         }
 
         var currentContent =
-            DataManager.GetExcelSheet<ContentFinderCondition>()!.GetRow(
+            DataManager.GetExcelSheet<ContentFinderCondition>(ClientLanguage.English)!.GetRow(
                 GameMain.Instance()->CurrentContentFinderConditionId);
+        if (currentContent == null)
+        {
+            ToggleOverlayOff();
+            return;
+        }
 
         // Check duty if specific filter applied
         if (!Configuration.EnableAll)
@@ -163,18 +161,17 @@ public sealed class Plugin : IDalamudPlugin
         foreach (var status in playerCharacterStatusList)
             if (status.StatusId == 48 && status.RemainingTime > Configuration.RemainingTimeInSeconds)
                 hasFood = true;
-        if ((!hasFood && !Overlay.IsOpen) || (hasFood && Overlay.IsOpen)) Overlay.Toggle();
+
+        /*
+         * Opens overlay if player has no food
+         * Closes overlay if player has food
+         */
+        Overlay.IsOpen = !hasFood;
     }
 
     private void ToggleOverlayOff()
     {
-        if (Overlay.IsOpen) Overlay.Toggle();
-    }
-
-    private void OnCommand(string command, string args)
-    {
-        // in response to the slash command, just toggle the display status of our config UI
-        ToggleConfigUI();
+        Overlay.IsOpen = false;
     }
 
     private void DrawUI()
