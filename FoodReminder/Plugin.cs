@@ -135,20 +135,20 @@ public sealed class Plugin : IDalamudPlugin
                 return;
             }
 
-            if ((contentName.Contains("(Extreme)") || contentName.Contains("Minstrel's Ballad")) &&
-                !Configuration.ShowInExtreme)
+            if (!Configuration.ShowInExtreme &&
+                (contentName.Contains("(Extreme)") || contentName.Contains("Minstrel's Ballad")))
             {
                 ToggleOverlayOff();
                 return;
             }
 
-            if (contentName.Contains("(Savage)") && !Configuration.ShowInSavage)
+            if (!Configuration.ShowInSavage && contentName.Contains("(Savage)"))
             {
                 ToggleOverlayOff();
                 return;
             }
 
-            if (contentName.Contains("(Ultimate)") && !Configuration.ShowInUltimate)
+            if (!Configuration.ShowInUltimate && contentName.Contains("(Ultimate)"))
             {
                 ToggleOverlayOff();
                 return;
