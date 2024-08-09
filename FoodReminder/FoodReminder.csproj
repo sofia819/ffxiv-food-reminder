@@ -5,7 +5,7 @@
     <PropertyGroup>
         <Version>1.0.1</Version>
         <Description>Food Reminder</Description>
-        <PackageProjectUrl>https://github.com/sofia819/food-reminder</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/sofia819/ffxiv-food-reminder</PackageProjectUrl>
         <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
