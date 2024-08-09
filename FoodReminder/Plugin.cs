@@ -97,10 +97,27 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
+        // Make sure duty is ready
+        if (!DutyState.IsDutyStarted) return;
+
+        // Whether to show in combat
+        if (Configuration.HideInCombat && (PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
+        {
+            ToggleOverlayOff();
+            return;
+        }
+
         var currentContent =
             DataManager.GetExcelSheet<ContentFinderCondition>(ClientLanguage.English)!.GetRow(
                 GameMain.Instance()->CurrentContentFinderConditionId);
         if (currentContent == null)
+        {
+            ToggleOverlayOff();
+            return;
+        }
+
+        // Only show if level synced
+        if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
         {
             ToggleOverlayOff();
             return;
@@ -136,23 +153,6 @@ public sealed class Plugin : IDalamudPlugin
                 ToggleOverlayOff();
                 return;
             }
-        }
-
-        // Only show if level synced
-        if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
-        {
-            ToggleOverlayOff();
-            return;
-        }
-
-        // Make sure duty is ready
-        if (!DutyState.IsDutyStarted) return;
-
-        // Whether to show in combat
-        if (Configuration.HideInCombat && (PlayerCharacter.StatusFlags & StatusFlags.InCombat) != 0)
-        {
-            ToggleOverlayOff();
-            return;
         }
 
         // Check if well-fed
