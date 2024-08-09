@@ -128,8 +128,11 @@ public sealed class Plugin : IDalamudPlugin
         {
             // Check Content Type By Name
             var contentName = currentContent.Name.RawString;
-            var isMatch = Regex.IsMatch(contentName, "(Minstrel's Ballad|\\(Extreme\\)|\\(Savage\\)|\\(Ultimate\\))");
-            if (!isMatch)
+
+            // If not all enabled, only check these content names
+            var validContentNames =
+                Regex.IsMatch(contentName, "(Minstrel's Ballad|\\(Extreme\\)|\\(Savage\\)|\\(Ultimate\\))");
+            if (!validContentNames)
             {
                 ToggleOverlayOff();
                 return;
