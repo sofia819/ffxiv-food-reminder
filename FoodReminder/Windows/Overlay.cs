@@ -33,6 +33,7 @@ public class Overlay : Window, IDisposable
             | ImGuiWindowFlags.NoScrollbar
             | ImGuiWindowFlags.NoScrollWithMouse;
 
+        Size = new Vector2(260, 80);
         SizeConstraints = new WindowSizeConstraints { MaximumSize = new Vector2(1280, 360) };
         SizeCondition = ImGuiCond.FirstUseEver;
 
