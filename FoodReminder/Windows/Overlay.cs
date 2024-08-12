@@ -58,8 +58,6 @@ public class Overlay : Window, IDisposable
                 & ~ImGuiWindowFlags.NoMove
                 & ~ImGuiWindowFlags.NoBackground;
         }
-
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, configuration.BackgroundColor);
     }
 
     public override void Draw()
@@ -93,9 +91,7 @@ public class Overlay : Window, IDisposable
                     imageEdge.X + (textSize.X + (12 * configuration.OverlayScale)),
                     imageEdge.Y + (8 * configuration.OverlayScale)
                 ),
-                configuration.IsOverlayLocked
-                    ? ImGui.GetColorU32(configuration.BackgroundColor)
-                    : 0,
+                ImGui.GetColorU32(configuration.BackgroundColor),
                 10f
             );
             imDrawListPtr.AddText(
@@ -130,9 +126,7 @@ public class Overlay : Window, IDisposable
                     topLeft.X + textSize.X + (6 * configuration.OverlayScale),
                     topLeft.Y + textSize.Y + (8 * configuration.OverlayScale)
                 ),
-                configuration.IsOverlayLocked
-                    ? ImGui.GetColorU32(configuration.BackgroundColor)
-                    : 0,
+                ImGui.GetColorU32(configuration.BackgroundColor),
                 10f
             );
             imDrawListPtr.AddText(
@@ -148,10 +142,5 @@ public class Overlay : Window, IDisposable
         }
 
         font.Pop();
-    }
-
-    public override void PostDraw()
-    {
-        ImGui.PopStyleColor();
     }
 }
