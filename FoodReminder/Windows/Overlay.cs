@@ -8,9 +8,9 @@ namespace FoodReminder.Windows;
 
 public class Overlay : Window, IDisposable
 {
-    private const int ImageWidth = 96;
-
-    private const int ImageHeight = 96;
+    private const string EatFood = "EAT FOOD";
+    private const int ImageWidth = 60;
+    private const int ImageHeight = 60;
 
     private readonly Configuration configuration;
 
@@ -33,7 +33,7 @@ public class Overlay : Window, IDisposable
             | ImGuiWindowFlags.NoScrollbar
             | ImGuiWindowFlags.NoScrollWithMouse;
 
-        Size = new Vector2(1040, 400);
+        SizeConstraints = new WindowSizeConstraints { MaximumSize = new Vector2(1280, 360) };
         SizeCondition = ImGuiCond.FirstUseEver;
 
         this.configuration = plugin.Configuration;
@@ -45,27 +45,25 @@ public class Overlay : Window, IDisposable
 
     public override void PreDraw()
     {
+        Flags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground;
         if (configuration.IsOverlayLocked)
         {
-            Flags |= ImGuiWindowFlags.NoInputs;
-            Flags |= ImGuiWindowFlags.NoMove;
+            Flags |=
+                ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground;
         }
         else
         {
-            Flags &= ~ImGuiWindowFlags.NoInputs;
-            Flags &= ~ImGuiWindowFlags.NoMove;
+            Flags &=
+                ~ImGuiWindowFlags.NoInputs
+                & ~ImGuiWindowFlags.NoMove
+                & ~ImGuiWindowFlags.NoBackground;
         }
-
-        Flags |= ImGuiWindowFlags.NoTitleBar;
-        Flags |= ImGuiWindowFlags.NoBackground;
     }
 
     public override void Draw()
     {
-        var eatFood = "EAT FOOD";
         var currentTime = DateTime.Now;
-
-        if (configuration.IsFlashingEffectEnabled && currentTime - lastVisibleTime > flashTimeSpan)
+        if (currentTime - lastVisibleTime > flashTimeSpan)
         {
             visible = !visible;
             lastVisibleTime = currentTime;
@@ -76,57 +74,73 @@ public class Overlay : Window, IDisposable
 
         var image = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
 
-        var fontGlobalScale = ImGui.GetIO().FontGlobalScale;
-
         var imageEdge = new Vector2(
-            topLeft.X + (ImageWidth * fontGlobalScale * configuration.OverlayScale),
-            topLeft.Y + (ImageHeight * fontGlobalScale * configuration.OverlayScale)
+            topLeft.X + (ImageWidth * configuration.OverlayScale),
+            topLeft.Y + (ImageHeight * configuration.OverlayScale)
         );
 
         font.Push();
-        ImGui.SetWindowFontScale(configuration.OverlayScale);
-        var textSize = ImGui.CalcTextSize(eatFood);
-        imDrawListPtr.AddRectFilled(
-            new Vector2(
-                imageEdge.X + (26 * fontGlobalScale * configuration.OverlayScale),
-                topLeft.Y + (34 * fontGlobalScale * configuration.OverlayScale)
-            ),
-            new Vector2(
-                imageEdge.X + textSize.X + (32 * fontGlobalScale * configuration.OverlayScale),
-                topLeft.Y + textSize.Y + (42 * fontGlobalScale * configuration.OverlayScale)
-            ),
-            ImGui.GetColorU32(configuration.BackgroundColor)
-        );
-
-        imDrawListPtr.AddText(
-            new Vector2(
-                imageEdge.X + (30 * fontGlobalScale * configuration.OverlayScale),
-                topLeft.Y + (40 * fontGlobalScale * configuration.OverlayScale)
-            ),
-            !configuration.IsFlashingEffectEnabled || visible
-                ? ImGui.GetColorU32(configuration.PrimaryTextColor)
-                : ImGui.GetColorU32(configuration.SecondaryTextColor),
-            eatFood
-        );
-        font.Pop();
+        ImGui.SetWindowFontScale(configuration.OverlayScale * 1 / ImGui.GetIO().FontGlobalScale);
+        var textSize = ImGui.CalcTextSize(EatFood);
 
         if (configuration.ShowIcon && image != null)
         {
+            imDrawListPtr.AddRectFilled(
+                topLeft,
+                new Vector2(
+                    imageEdge.X + (textSize.X + (12 * configuration.OverlayScale)),
+                    imageEdge.Y + (8 * configuration.OverlayScale)
+                ),
+                ImGui.GetColorU32(configuration.BackgroundColor),
+                10f
+            );
+            imDrawListPtr.AddText(
+                new Vector2(
+                    imageEdge.X + (8 * configuration.OverlayScale),
+                    topLeft.Y + (10 * configuration.OverlayScale)
+                ),
+                !configuration.IsFlashingEffectEnabled || visible
+                    ? ImGui.GetColorU32(configuration.PrimaryTextColor)
+                    : ImGui.GetColorU32(configuration.SecondaryTextColor),
+                EatFood
+            );
             ImGui.SetCursorPosX(
-                ImGui.GetWindowContentRegionMin().X
-                    + (16 * fontGlobalScale * configuration.OverlayScale)
+                ImGui.GetWindowContentRegionMin().X + (4 * configuration.OverlayScale)
             );
             ImGui.SetCursorPosY(
-                ImGui.GetWindowContentRegionMin().Y
-                    + (16 * fontGlobalScale * configuration.OverlayScale)
+                ImGui.GetWindowContentRegionMin().Y + (4 * configuration.OverlayScale)
             );
             ImGui.Image(
                 image.ImGuiHandle,
                 new Vector2(
-                    ImageWidth * fontGlobalScale * configuration.OverlayScale,
-                    ImageHeight * fontGlobalScale * configuration.OverlayScale
+                    ImageWidth * configuration.OverlayScale,
+                    ImageHeight * configuration.OverlayScale
                 )
             );
         }
+        else
+        {
+            imDrawListPtr.AddRectFilled(
+                topLeft,
+                new Vector2(
+                    topLeft.X + textSize.X + (6 * configuration.OverlayScale),
+                    topLeft.Y + textSize.Y + (8 * configuration.OverlayScale)
+                ),
+                ImGui.GetColorU32(configuration.BackgroundColor),
+                10f
+            );
+            imDrawListPtr.AddText(
+                new Vector2(
+                    topLeft.X + (4 * configuration.OverlayScale),
+                    topLeft.Y + (4 * configuration.OverlayScale)
+                ),
+                !configuration.IsFlashingEffectEnabled || visible
+                    ? ImGui.GetColorU32(configuration.PrimaryTextColor)
+                    : ImGui.GetColorU32(configuration.SecondaryTextColor),
+                EatFood
+            );
+        }
+
+        font.Pop();
     }
 }

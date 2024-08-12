@@ -19,10 +19,7 @@ public class ConfigWindow : Window, IDisposable
     public ConfigWindow(Plugin plugin)
         : base("FoodReminder###FoodReminderConfig")
     {
-        Flags =
-            ImGuiWindowFlags.NoResize
-            | ImGuiWindowFlags.NoScrollbar
-            | ImGuiWindowFlags.NoScrollWithMouse;
+        Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
 
         Size = new Vector2(200, 230);
         SizeCondition = ImGuiCond.Always;
