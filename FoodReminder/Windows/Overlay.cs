@@ -6,12 +6,11 @@ using ImGuiNET;
 
 namespace FoodReminder.Windows;
 
-public class Overlay
-    : Window, IDisposable
+public class Overlay : Window, IDisposable
 {
-    private const int ImageWidth = 64;
+    private const int ImageWidth = 96;
 
-    private const int ImageHeight = 64;
+    private const int ImageHeight = 96;
 
     private readonly Configuration configuration;
 
@@ -25,15 +24,17 @@ public class Overlay
 
     private bool visible;
 
-    public Overlay(Plugin plugin, Configuration configuration, IFontHandle font, string iconPath) : base(
-        "FoodReminder###Overlay")
+    public Overlay(Plugin plugin, Configuration configuration, IFontHandle font, string iconPath)
+        : base("FoodReminder###Overlay")
     {
         this.configuration = configuration;
-        Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-                ImGuiWindowFlags.NoScrollWithMouse;
+        Flags =
+            ImGuiWindowFlags.NoCollapse
+            | ImGuiWindowFlags.NoScrollbar
+            | ImGuiWindowFlags.NoScrollWithMouse;
 
         Size = new Vector2(1040, 400);
-        SizeCondition = ImGuiCond.Once;
+        SizeCondition = ImGuiCond.FirstUseEver;
 
         this.configuration = plugin.Configuration;
         this.font = font;
@@ -77,42 +78,55 @@ public class Overlay
 
         var fontGlobalScale = ImGui.GetIO().FontGlobalScale;
 
-
-        var imageEdge = new Vector2(topLeft.X + (ImageWidth * fontGlobalScale * configuration.OverlayScale),
-                                    topLeft.Y + (ImageHeight * fontGlobalScale * configuration.OverlayScale));
-
+        var imageEdge = new Vector2(
+            topLeft.X + (ImageWidth * fontGlobalScale * configuration.OverlayScale),
+            topLeft.Y + (ImageHeight * fontGlobalScale * configuration.OverlayScale)
+        );
 
         font.Push();
         ImGui.SetWindowFontScale(configuration.OverlayScale);
         var textSize = ImGui.CalcTextSize(eatFood);
         imDrawListPtr.AddRectFilled(
             new Vector2(
-                imageEdge.X + (16 * fontGlobalScale * configuration.OverlayScale),
-                topLeft.Y + (20 * fontGlobalScale * configuration.OverlayScale)
+                imageEdge.X + (26 * fontGlobalScale * configuration.OverlayScale),
+                topLeft.Y + (34 * fontGlobalScale * configuration.OverlayScale)
             ),
             new Vector2(
-                imageEdge.X + textSize.X + (24 * fontGlobalScale * configuration.OverlayScale),
-                imageEdge.Y + textSize.Y
-            ), ImGui.GetColorU32(configuration.BackgroundColor)
+                imageEdge.X + textSize.X + (32 * fontGlobalScale * configuration.OverlayScale),
+                topLeft.Y + textSize.Y + (42 * fontGlobalScale * configuration.OverlayScale)
+            ),
+            ImGui.GetColorU32(configuration.BackgroundColor)
         );
+
         imDrawListPtr.AddText(
-            new Vector2(imageEdge.X + (20 * fontGlobalScale * configuration.OverlayScale),
-                        topLeft.Y + (30 * fontGlobalScale * configuration.OverlayScale)),
+            new Vector2(
+                imageEdge.X + (30 * fontGlobalScale * configuration.OverlayScale),
+                topLeft.Y + (40 * fontGlobalScale * configuration.OverlayScale)
+            ),
             !configuration.IsFlashingEffectEnabled || visible
                 ? ImGui.GetColorU32(configuration.PrimaryTextColor)
                 : ImGui.GetColorU32(configuration.SecondaryTextColor),
-            eatFood);
+            eatFood
+        );
         font.Pop();
 
         if (configuration.ShowIcon && image != null)
         {
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMin().X +
-                                (16 * fontGlobalScale * configuration.OverlayScale));
-            ImGui.SetCursorPosY(ImGui.GetWindowContentRegionMin().Y +
-                                (16 * fontGlobalScale * configuration.OverlayScale));
-            ImGui.Image(image.ImGuiHandle,
-                        new Vector2(ImageWidth * fontGlobalScale * configuration.OverlayScale,
-                                    ImageHeight * fontGlobalScale * configuration.OverlayScale));
+            ImGui.SetCursorPosX(
+                ImGui.GetWindowContentRegionMin().X
+                    + (16 * fontGlobalScale * configuration.OverlayScale)
+            );
+            ImGui.SetCursorPosY(
+                ImGui.GetWindowContentRegionMin().Y
+                    + (16 * fontGlobalScale * configuration.OverlayScale)
+            );
+            ImGui.Image(
+                image.ImGuiHandle,
+                new Vector2(
+                    ImageWidth * fontGlobalScale * configuration.OverlayScale,
+                    ImageHeight * fontGlobalScale * configuration.OverlayScale
+                )
+            );
         }
     }
 }
