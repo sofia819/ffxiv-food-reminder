@@ -1,41 +1,39 @@
 using System;
 using Dalamud.Interface.ManagedFontAtlas;
-using Dalamud.Interface.Textures.TextureWraps;
-using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
 using FFXIVClientStructs.FFXIV.Common.Math;
+using ImGuiNET;
 
 namespace FoodReminder.Windows;
 
 public class Overlay
     : Window, IDisposable
 {
-    private const int ImageWidth = 128;
+    private const int ImageWidth = 64;
 
-    private const int ImageHeight = 128;
+    private const int ImageHeight = 64;
 
     private readonly Configuration configuration;
 
+    private readonly TimeSpan flashTimeSpan = TimeSpan.FromSeconds(1);
+
     private readonly IFontHandle font;
+
+    private readonly string iconPath;
 
     private DateTime lastVisibleTime;
 
-    private readonly TimeSpan flashTimeSpan = TimeSpan.FromSeconds(1);
-
     private bool visible;
-
-    private string iconPath;
 
     public Overlay(Plugin plugin, Configuration configuration, IFontHandle font, string iconPath) : base(
         "FoodReminder###Overlay")
     {
         this.configuration = configuration;
         Flags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-                ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize;
+                ImGuiWindowFlags.NoScrollWithMouse;
 
         Size = new Vector2(1040, 400);
-        SizeCondition = ImGuiCond.Always;
+        SizeCondition = ImGuiCond.Once;
 
         this.configuration = plugin.Configuration;
         this.font = font;
@@ -77,32 +75,44 @@ public class Overlay
 
         var image = Plugin.TextureProvider.GetFromFile(iconPath).GetWrapOrDefault();
 
-        if (configuration.ShowIcon && image != null)
-        {
-            // Leave some padding
-            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMin().X + (14 * configuration.OverlayScale));
-            ImGui.SetCursorPosY(ImGui.GetWindowContentRegionMin().Y + (14 * configuration.OverlayScale));
-            ImGui.Image(image.ImGuiHandle,
-                        new Vector2((ImageWidth * configuration.OverlayScale) - (14 * configuration.OverlayScale),
-                                    (ImageHeight * configuration.OverlayScale) - (14 * configuration.OverlayScale)));
-        }
+        var fontGlobalScale = ImGui.GetIO().FontGlobalScale;
 
-        var imageEdge = new Vector2(topLeft.X + (ImageWidth * configuration.OverlayScale),
-                                    topLeft.Y + (ImageHeight * configuration.OverlayScale));
 
-        imDrawListPtr.AddRectFilled(
-            new Vector2(imageEdge.X + (6 * configuration.OverlayScale), topLeft.Y + (24 * configuration.OverlayScale)),
-            new Vector2(imageEdge.X + (210 * configuration.OverlayScale),
-                        topLeft.Y + (100 * configuration.OverlayScale)),
-            ImGui.GetColorU32(configuration.BackgroundColor));
+        var imageEdge = new Vector2(topLeft.X + (ImageWidth * fontGlobalScale * configuration.OverlayScale),
+                                    topLeft.Y + (ImageHeight * fontGlobalScale * configuration.OverlayScale));
+
+
         font.Push();
         ImGui.SetWindowFontScale(configuration.OverlayScale);
+        var textSize = ImGui.CalcTextSize(eatFood);
+        imDrawListPtr.AddRectFilled(
+            new Vector2(
+                imageEdge.X + (16 * fontGlobalScale * configuration.OverlayScale),
+                topLeft.Y + (20 * fontGlobalScale * configuration.OverlayScale)
+            ),
+            new Vector2(
+                imageEdge.X + textSize.X + (24 * fontGlobalScale * configuration.OverlayScale),
+                imageEdge.Y + textSize.Y
+            ), ImGui.GetColorU32(configuration.BackgroundColor)
+        );
         imDrawListPtr.AddText(
-            new Vector2(imageEdge.X + (20 * configuration.OverlayScale), topLeft.Y + (40 * configuration.OverlayScale)),
+            new Vector2(imageEdge.X + (20 * fontGlobalScale * configuration.OverlayScale),
+                        topLeft.Y + (30 * fontGlobalScale * configuration.OverlayScale)),
             !configuration.IsFlashingEffectEnabled || visible
                 ? ImGui.GetColorU32(configuration.PrimaryTextColor)
                 : ImGui.GetColorU32(configuration.SecondaryTextColor),
             eatFood);
         font.Pop();
+
+        if (configuration.ShowIcon && image != null)
+        {
+            ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMin().X +
+                                (16 * fontGlobalScale * configuration.OverlayScale));
+            ImGui.SetCursorPosY(ImGui.GetWindowContentRegionMin().Y +
+                                (16 * fontGlobalScale * configuration.OverlayScale));
+            ImGui.Image(image.ImGuiHandle,
+                        new Vector2(ImageWidth * fontGlobalScale * configuration.OverlayScale,
+                                    ImageHeight * fontGlobalScale * configuration.OverlayScale));
+        }
     }
 }
