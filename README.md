@@ -36,9 +36,6 @@ Note: this is filled with bad coding practices and bugs.
 - Show icon
 - Scale: controls reminder banner size
 
-#### Notes
-
--   If the filter is empty or if all filter entries are disabled, it will watch all of the messages
 
 ## Commands
 
