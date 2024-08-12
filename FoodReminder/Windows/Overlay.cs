@@ -47,17 +47,9 @@ public class Overlay : Window, IDisposable
     {
         Flags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground;
         if (configuration.IsOverlayLocked)
-        {
-            Flags |=
-                ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBackground;
-        }
+            Flags |= ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoMove;
         else
-        {
-            Flags &=
-                ~ImGuiWindowFlags.NoInputs
-                & ~ImGuiWindowFlags.NoMove
-                & ~ImGuiWindowFlags.NoBackground;
-        }
+            Flags &= ~ImGuiWindowFlags.NoInputs & ~ImGuiWindowFlags.NoMove;
     }
 
     public override void Draw()
