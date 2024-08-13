@@ -14,6 +14,9 @@ Note: this is filled with bad coding practices and bugs.
 
 ![main settings](main-settings.png)
 
+#### Notes
+-   This has only been tested in the Global EN version
+
 ### Main Options
 - Enable 
 - Lock Overlay
