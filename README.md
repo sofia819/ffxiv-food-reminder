@@ -6,8 +6,6 @@ Reminds you to eat food in duties
 
 ## Installation
 
-
-
 [Custom Plugin Repository](https://gist.githubusercontent.com/sofia819/fb17fff59d39923fde123538dbf8b92b/raw/sofia-plugins.json)
 
 ## Notes
