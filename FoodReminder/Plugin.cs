@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.RegularExpressions;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
@@ -11,7 +11,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FoodReminder.Windows;
-using ContentFinderCondition = Lumina.Excel.GeneratedSheets.ContentFinderCondition;
+using ContentFinderCondition = Lumina.Excel.Sheets.ContentFinderCondition;
 
 namespace FoodReminder;
 
@@ -110,11 +110,6 @@ public sealed class Plugin : IDalamudPlugin
         var currentContent =
             DataManager.GetExcelSheet<ContentFinderCondition>(ClientLanguage.English)!.GetRow(
                 GameMain.Instance()->CurrentContentFinderConditionId);
-        if (currentContent == null)
-        {
-            ToggleOverlayOff();
-            return;
-        }
 
         // Only show if level synced
         if (Configuration.ShowIfLevelSynced && currentContent.ClassJobLevelSync != PlayerCharacter.Level)
@@ -127,7 +122,7 @@ public sealed class Plugin : IDalamudPlugin
         if (!Configuration.EnableAll)
         {
             // Check Content Type By Name
-            var contentName = currentContent.Name.RawString;
+            var contentName = currentContent.Name.ExtractText();
 
             // If not all enabled, only check these content names
             var validContentNames =
