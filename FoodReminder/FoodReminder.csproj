@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="Dalamud.Plugin.Bootstrap.targets"/>
+<Project Sdk="Dalamud.NET.SDK/12.0.2">
 
     <PropertyGroup>
-        <Version>1.0.3</Version>
+        <Version>1.0.4</Version>
         <Description>Food Reminder</Description>
         <PackageProjectUrl>https://github.com/sofia819/ffxiv-food-reminder</PackageProjectUrl>
         <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
