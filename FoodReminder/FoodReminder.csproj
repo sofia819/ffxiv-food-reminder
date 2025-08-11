@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.NET.Sdk/13.0.0">
 
     <PropertyGroup>
-        <Version>1.0.4</Version>
+        <Version>1.0.5</Version>
         <Description>Food Reminder</Description>
         <PackageProjectUrl>https://github.com/sofia819/ffxiv-food-reminder</PackageProjectUrl>
         <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
