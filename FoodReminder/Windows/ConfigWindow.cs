@@ -1,17 +1,17 @@
-﻿using System;
+using System;
 using System.Numerics;
 using Dalamud.Interface.Windowing;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace FoodReminder.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    private readonly MainTab MainTab;
+    private readonly MainTab mainTab;
 
-    private readonly ContentTab ContentTab;
+    private readonly ContentTab contentTab;
 
-    private readonly StyleTab StyleTab;
+    private readonly StyleTab styleTab;
 
     // We give this window a constant ID using ###
     // This allows for labels being dynamic, like "{FPS Counter}fps###XYZ counter window",
@@ -24,9 +24,9 @@ public class ConfigWindow : Window, IDisposable
         Size = new Vector2(200, 230);
         SizeCondition = ImGuiCond.Always;
 
-        MainTab = new MainTab(plugin.Configuration);
-        ContentTab = new ContentTab(plugin.Configuration);
-        StyleTab = new StyleTab(plugin.Configuration);
+        mainTab = new MainTab(plugin.Configuration);
+        contentTab = new ContentTab(plugin.Configuration);
+        styleTab = new StyleTab(plugin.Configuration);
     }
 
     public void Dispose() { }
@@ -37,9 +37,9 @@ public class ConfigWindow : Window, IDisposable
     {
         ImGui.BeginTabBar("Settings");
 
-        MainTab.Draw();
-        ContentTab.Draw();
-        StyleTab.Draw();
+        mainTab.Draw();
+        contentTab.Draw();
+        styleTab.Draw();
 
         ImGui.EndTabBar();
     }
