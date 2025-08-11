@@ -2,7 +2,7 @@ using System;
 using Dalamud.Interface.ManagedFontAtlas;
 using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Common.Math;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace FoodReminder.Windows;
 
@@ -104,7 +104,7 @@ public class Overlay : Window, IDisposable
                 ImGui.GetWindowContentRegionMin().Y + (4 * configuration.OverlayScale)
             );
             ImGui.Image(
-                image.ImGuiHandle,
+                image.Handle,
                 new Vector2(
                     ImageWidth * configuration.OverlayScale,
                     ImageHeight * configuration.OverlayScale
