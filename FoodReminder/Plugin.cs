@@ -41,7 +41,7 @@ public sealed class Plugin : IDalamudPlugin
     internal static IDataManager DataManager { get; private set; } = null!;
 
     [PluginService]
-    internal static IClientState ClientState { get; private set; } = null!;
+    internal static IObjectTable ObjectTable { get; private set; } = null!;
 
     [PluginService]
     internal static IDutyState DutyState { get; private set; } = null!;
@@ -90,7 +90,7 @@ public sealed class Plugin : IDalamudPlugin
         }
 
         // Make sure there is a player
-        PlayerCharacter = ClientState.LocalPlayer;
+        PlayerCharacter = ObjectTable.LocalPlayer;
         if (PlayerCharacter == null)
         {
             ToggleOverlayOff();
